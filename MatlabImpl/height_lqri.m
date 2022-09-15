@@ -13,6 +13,6 @@ B_lqr = [zeros(2,2);
 K = lqr(A_lqr, B_lqr, diag([25, 100, 20]), 0.1 .* eye(2));
 
 
-u = -K*[x(2);x(5)-des_height;x(8)] + m * 9.81 / cos(x(6)) .* [0.5; 0.5];
+u = -K*[x(2);x(9)-des_height;x(16)] + m * 9.81 / cos(x(10)) .* [0.5; 0.5];
 end
 

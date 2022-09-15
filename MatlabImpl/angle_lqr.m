@@ -13,6 +13,6 @@ B_lqr = [zeros(1,2);
 
 K = lqr(A_lqr, B_lqr, diag([100, 1]), 0.1 .* eye(2));
 
-u = -K*([x(6);x(9)] - [t_des; 0]);
+u = -K*([x(10);x(17)] - [t_des; 0]);
 end
 
