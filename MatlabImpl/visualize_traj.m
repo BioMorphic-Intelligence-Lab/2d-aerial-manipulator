@@ -30,17 +30,6 @@ plot(t, control)
 grid on;
 legend(["u1", "u2"])
 
-
-% In plane visualization
-figure;
-plot(y(:,4),y(:,5))
-grid on;
-xlim([min(y(:,4)) - 0.2, max(y(:,4) + 0.2)])
-ylim([min(y(:,5)) - 0.2, max(y(:,5) + 0.2)])
-daspect([1 1 1])
-xlabel("x[m]")
-ylabel("y[m]")
-
 rot = @(theta) [cos(theta), -sin(theta);
                 sin(theta), cos(theta)];
 
@@ -48,16 +37,42 @@ rot = @(theta) [cos(theta), -sin(theta);
 figure;
 bar = 0.1.*[-1, 1; % x
              0, 0]; % y
+
+copter = animatedline;
+path = animatedline("Color","b");
+
+grid on;
+xlim([min(y(:,4)) - 0.2, max(y(:,4) + 0.5)])
+ylim([min(y(:,5)) - 0.2, max(y(:,5) + 0.5)])
+xlabel("x[m]")
+ylabel("y[m]")
+
+video = VideoWriter('trajectory'); %open video file
+video.FrameRate = 25; 
+open(video)
+
 for i = 1:length(y)
+    % Clear the plot from previous points
+    clearpoints(copter)
+
+    % Add New Points
     moved_bar = rot(y(i, 6)) * bar + y(i, 4:5)';
-    plot(moved_bar(1,:), moved_bar(2,:))
-    grid on;
-    xlim([min(y(:,4)) - 0.2, max(y(:,4) + 0.5)])
-    ylim([min(y(:,5)) - 0.2, max(y(:,5) + 0.5)])
-    xlabel("x[m]")
-    ylabel("y[m]")
-    pause(0.01)
+    assert(abs(norm(moved_bar(:,1) - moved_bar(:,2)) - 0.2) < 0.01,...
+           "Bar was deformed. Length: " ...
+           + num2str(norm(moved_bar(:,1) - moved_bar(:,2))))
+
+    addpoints(path,y(i,4), y(i,5))
+    addpoints(copter, moved_bar(1,:), moved_bar(2,:))
+    drawnow
+
+    % Grab every 4th frame for the video creation => 25 fps
+    if mod(i,4) == 0
+        frame = getframe(gcf); %get frame
+        writeVideo(video, frame);
+    end
 end
+
+close(video)
 
 end
 
