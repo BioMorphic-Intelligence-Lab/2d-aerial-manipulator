@@ -1,4 +1,4 @@
-function am = am(x,u, m, r, q_des)
+function am = am(x,u, m_base, m_link, r, l, q_des)
 %AM Computes the state derivative given the current state andc nput
 %   The state consists of the dualrotor pose and velocities
 %   x is the current state
@@ -22,10 +22,10 @@ x_dot(1:7) = [q_base; q_mani] - q_des;
 x_dot(8:14) = [q_dot_base; q_dot_mani];
 
 % Define the equation of motion matrices
-[M, A, G] = eom_matrices(q_base, m, r);
+[M, A, G] = eom_matrices([q_base;q_mani], m_base, m_link, r, l);
 % The velocities derivatives (accelerations) are computed via the equations
 % of motion of the dualrotor
-x_dot(15:17) = M\(A * u - G);
+x_dot(15:21) = M\(A * u - G);
 
 % Store the derivative in the return value
 am = x_dot;

@@ -54,10 +54,13 @@ base_path = animatedline("Color","b");
 ee_path = animatedline("Color", "r");
 
 grid on;
-xlim([min(q_base(:,1)) - 0.2, max(q_base(:,1) + 0.5)])
-ylim([min(q_base(:,2)) - 0.2, max(q_base(:,2) + 0.5)])
+xlim([min([q_base(:,1) - 1; q_base(:,2) - 1]),...
+      max([q_base(:,1) + 1; q_base(:,2) + 1])]);
+ylim([min([q_base(:,1) - 1; q_base(:,2) - 1]),...
+      max([q_base(:,1) + 1; q_base(:,2) + 1])])
 xlabel("x[m]")
 ylabel("y[m]")
+daspect([1 1 1])
 
 video = VideoWriter('trajectory'); %open video file
 video.FrameRate = 25; 
