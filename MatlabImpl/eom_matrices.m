@@ -38,20 +38,15 @@ A = [-sT,-sT, zeros(1,2);
      r, - r, zeros(1,2);
      % TODO Double check this. The arm should reach equilibrium but
      % oscillates... Maybe the damping/stiffness is not correct? Or the input map.
-     zeros(1,2), -r_tendon, r_tendon;
-     zeros(1,2), -r_tendon, r_tendon;
-     zeros(1,2), -r_tendon, r_tendon;
-     zeros(1,2), -r_tendon, r_tendon;];
+     zeros(4,2), -r_tendon*ones(4,1),r_tendon*ones(4,1)];
 
 % Damping
 D = [diag([0.01, 0.01, 0.001]), zeros(3,4); % Damping linear to velocity for base
-     zeros(4,3), diag([0.01,0.01,0.01,0.01])]; % Damping linear to joint velocity
+     zeros(4,3), diag([0.05,0.05,0.05,0.05])]; % Damping linear to joint velocity
 
 % Joint Stiffness
 K = [zeros(3,7);
-    zeros(4,3), diag([0.1,0.1,0.1,0.1])] * q % Linear in Joint Angle
-
-
+    zeros(4,3), diag([0.01,0.01,0.01,0.01])] * q; % Linear in Joint Angle
 
 % Gravity Compensation
 G = [0; 9.81 * m_base; 0; gravityContributionArm(q(4:7),m_link,l,q(3))];

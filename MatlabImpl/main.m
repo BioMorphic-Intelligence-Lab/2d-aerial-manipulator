@@ -16,13 +16,13 @@ q_des = [3; 1; 0;...  % Base
          0; 0; 0; 0]; % Manipulator Joints
 
 % Control Law
-u = @(x) [9.81*m_base.*[0;0];
+u = @(x) [9.81*m_base.*[0.5;0.5];
          %[max(min(angle_lqr(x, m_base, r,...
          %                 pos_pd(x, m_base, q_des(1)))...
          %       + height_lqri(x, m_base, r, q_des(2)),...
          %       [5;5]),...
          %   0); % Bi-Rotor Inputs
-            [0.1;0]... Tendon Inputs
+            [1;0]... Tendon Inputs
             ];
 
 % Dynamic model function
@@ -33,7 +33,7 @@ f = @(t, x) am(x, u(x), m_base, m_link, r, l,r_tendon, q_des);
 y0 = [0, 0, 0,   0, 0, 0, 0  ... Integral 
       0, 0, 0,   0, 0, 0, 0 ... Position
       0, 0, 0,   0, 0, 0, 0]; ... Velocity
-tspan = 0:0.01:15;
+tspan = 0:0.01:8;
 
 % Simulate system
 [t, y] = ode45(f, tspan, y0);

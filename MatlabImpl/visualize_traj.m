@@ -34,7 +34,7 @@ end
 figure;
 plot(t, control)
 grid on;
-legend(["u1", "u2"])
+legend(["$u_1$", "$u_2$","$f_1$","$f_2$"], "Interpreter","latex")
 
 rot = @(theta) [cos(theta), -sin(theta);
                 sin(theta), cos(theta)];
@@ -66,6 +66,9 @@ video = VideoWriter('trajectory'); %open video file
 video.FrameRate = 25; 
 open(video);
 
+% EE - path
+ee = zeros(2,length(y));
+
 for i = 1:length(y)
     % Clear the plot from previous points
     clearpoints(copter)
@@ -84,6 +87,7 @@ for i = 1:length(y)
     
     cummulative_rotation = rot(q_base(i, 3));
     cummulative_translation = q_base(i, 1:2)';
+    
     % Manipulator Links
     for k =1:4
         cummulative_rotation = cummulative_rotation * rot(q_mani(i,k));
@@ -95,6 +99,9 @@ for i = 1:length(y)
         cummulative_translation = cummulative_translation ...
                                   + cummulative_rotation * link(:,2);
     end
+
+    % Store the EE position
+    ee(:,i) = cummulative_translation;
     
 
     % Paths
@@ -111,6 +118,15 @@ for i = 1:length(y)
 end
 
 close(video);
+
+figure;
+hold all;
+grid on;
+xlabel("t[s]")
+ylabel("[m]")
+plot(t, ee(1,:));
+plot(t, ee(2,:));
+legend(["$x_{EE}$","$y_{EE}$"],"Interpreter","latex");
 
 end
 

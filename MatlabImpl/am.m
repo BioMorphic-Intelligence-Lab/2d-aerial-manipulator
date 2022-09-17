@@ -27,7 +27,7 @@ x_dot(8:14) = [q_dot_base; q_dot_mani];
 % The velocities derivatives (accelerations) are computed via the equations
 % of motion of the dualrotor
 x_dot(15:21) = M\(A * u - C*[q_dot_base;q_dot_mani] ...
-                  - D*[q_base; q_mani] - K - 0);
+                  - D*[q_dot_base; q_dot_mani] - K - G);
 
 % Store the derivative in the return value
 am = x_dot;
