@@ -26,7 +26,7 @@ grid on;
 legend(["$\theta$"],'Interpreter','latex')
 
 % Actuation Plots
-control = zeros(2,length(y));
+control = zeros(4,length(y));
 for i = 1:length(control)
     control(:,i) = u(y(i,:)');
 end

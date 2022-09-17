@@ -1,4 +1,4 @@
-function [M, A, G] = eom_matrices(q, m_base, m_link, r,l)
+function [M, C, A, D, K, G] = eom_matrices(q,q_dot,m_base,m_link,r,l,r_tendon)
 %EOM_MATRICES function that returns the Equaton of Motion Matrices given
 %the current state
 % Input:
@@ -25,14 +25,33 @@ H = zeros(3,4); % Coupling Matrix
 M = [M_base, H;
      H', M_arm];
 
+% Corriolis Matrix
+C = [zeros(3,7); % No corriolis effect on the base
+    zeros(4,3),... No corriolis effect on the arm based on base velocity
+    corriolisMatrixArm(q(4:7),q_dot(4:7),m_link,l)];
 
 % Input Map Matrix
 sT = sin(q(3));
 cT = cos(q(3));
-A = [-sT,-sT;
-     cT,cT;
-     r, - r;
-     zeros(4,2)];
+A = [-sT,-sT, zeros(1,2);
+     cT,cT, zeros(1,2);
+     r, - r, zeros(1,2);
+     % TODO Double check this. The arm should reach equilibrium but
+     % oscillates... Maybe the damping/stiffness is not correct? Or the input map.
+     zeros(1,2), -r_tendon, r_tendon;
+     zeros(1,2), -r_tendon, r_tendon;
+     zeros(1,2), -r_tendon, r_tendon;
+     zeros(1,2), -r_tendon, r_tendon;];
+
+% Damping
+D = [diag([0.01, 0.01, 0.001]), zeros(3,4); % Damping linear to velocity for base
+     zeros(4,3), diag([0.01,0.01,0.01,0.01])]; % Damping linear to joint velocity
+
+% Joint Stiffness
+K = [zeros(3,7);
+    zeros(4,3), diag([0.1,0.1,0.1,0.1])] * q % Linear in Joint Angle
+
+
 
 % Gravity Compensation
 G = [0; 9.81 * m_base; 0; gravityContributionArm(q(4:7),m_link,l,q(3))];
