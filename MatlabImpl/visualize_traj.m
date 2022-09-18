@@ -23,7 +23,7 @@ plot(t, 180 / pi .* q_base(:,3));
 xlabel("t[s]")
 ylabel("[deg]")
 grid on;
-legend(["$\theta$"],'Interpreter','latex')
+legend("$\theta$",'Interpreter','latex')
 
 % Actuation Plots
 control = zeros(4,length(y));
@@ -32,9 +32,19 @@ for i = 1:length(control)
 end
 
 figure;
-plot(t, control)
+subplot(2,1,1)
+plot(t, control(1:2,:))
 grid on;
-legend(["$u_1$", "$u_2$","$f_1$","$f_2$"], "Interpreter","latex")
+legend(["$u_1$", "$u_2$"], "Interpreter","latex")
+xlabel("t[s]")
+ylabel("Rotor Force [N]")
+
+subplot(2,1,2)
+plot(t, control(3:4,:))
+grid on;
+legend(["$f_1$","$f_2$"], "Interpreter","latex")
+xlabel("t[s]")
+ylabel("Tendon Tension [N]")
 
 rot = @(theta) [cos(theta), -sin(theta);
                 sin(theta), cos(theta)];
@@ -127,6 +137,18 @@ ylabel("[m]")
 plot(t, ee(1,:));
 plot(t, ee(2,:));
 legend(["$x_{EE}$","$y_{EE}$"],"Interpreter","latex");
+
+
+figure;
+hold all;
+grid on;
+xlabel("t[s]")
+ylabel("[deg]")
+plot(t, 180/pi*q_mani(:,1));
+plot(t, 180/pi*q_mani(:,2));
+plot(t, 180/pi*q_mani(:,3));
+plot(t, 180/pi*q_mani(:,4));
+legend(["$q_1$","$q_2$","$q_3$","$q_4$"],"Interpreter","latex");
 
 end
 

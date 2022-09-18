@@ -46,7 +46,7 @@ D = [diag([0.01, 0.01, 0.001]), zeros(3,4); % Damping linear to velocity for bas
 
 % Joint Stiffness
 K = [zeros(3,7);
-    zeros(4,3), diag([0.01,0.01,0.01,0.01])] * q; % Linear in Joint Angle
+     zeros(4,3), diag([0.5,0.5,0.5,0.5])] * q; % Linear in Joint Angle
 
 % Gravity Compensation
 G = [0; 9.81 * m_base; 0; gravityContributionArm(q(4:7),m_link,l,q(3))];
