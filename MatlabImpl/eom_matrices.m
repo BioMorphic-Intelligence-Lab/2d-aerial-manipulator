@@ -17,7 +17,7 @@ M = massInertiaMatrix(q,m_base,m_link,r,l);
 C = [zeros(3,3) ... Mass Inertia of the base is constant
      zeros(3,4); % Arm isn't -> effect on the base TODO 
     zeros(4,3),... No corriolis effect on the arm based on base velocity
-    corriolisMatrixArm(q(4:7),q_dot(4:7),m_link,l)];
+    coriolisMatrixArm(q(4:7),q_dot(4:7),m_link,l)];
 
 % Input Map Matrix
 sT = sin(q(3));
