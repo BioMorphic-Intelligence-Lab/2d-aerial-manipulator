@@ -1,4 +1,4 @@
-function C = corriolisMatrixArm(q,q_dot,m,l)
+function C = coriolisMatrixArm(q,q_dot,m,l)
 %MASsinERTIAMATRIXARM Summary of this function goes here
 %   Detailed explanation goes here
 

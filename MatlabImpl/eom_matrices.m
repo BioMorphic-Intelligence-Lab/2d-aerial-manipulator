@@ -10,23 +10,12 @@ function [M, C, A, D, K, G] = eom_matrices(q,q_dot,m_base,m_link,r,l,r_tendon)
 %     A Input to generalized forces matrix
 %     G Gravity contribution
 
-% Compute Inertia around the the CoM
-% Assume thin rod around its center, i.e I = 1/12 m L^2
-I = 0.83333 * m_base * (2 * r) ^ 2;
 % Mass-Inertia Matrices
-M_base = [m_base, 0, 0;
-         0, m_base, 0;
-         0, 0, I];
-M_arm = massInertiaMatrixArm(q(4:7), m_link, l);
-
-H = zeros(3,4); % Coupling Matrix  
-
-% Putting it all together
-M = [M_base, H;
-     H', M_arm];
+M = massInertiaMatrix(q,m_base,m_link,r,l);
 
 % Corriolis Matrix
-C = [zeros(3,7); % No corriolis effect on the base
+C = [zeros(3,3) ... Mass Inertia of the base is constant
+     zeros(3,4); % Arm isn't -> effect on the base TODO 
     zeros(4,3),... No corriolis effect on the arm based on base velocity
     corriolisMatrixArm(q(4:7),q_dot(4:7),m_link,l)];
 
@@ -36,9 +25,7 @@ cT = cos(q(3));
 A = [-sT,-sT, zeros(1,2);
      cT,cT, zeros(1,2);
      r, - r, zeros(1,2);
-     % TODO Double check this. The arm should reach equilibrium but
-     % oscillates... Maybe the damping/stiffness is not correct? Or the input map.
-     zeros(4,2), -r_tendon*ones(4,1),r_tendon*ones(4,1)];
+    zeros(4,2), -r_tendon*ones(4,1),r_tendon*ones(4,1)];
 
 % Damping
 D = [diag([0.01, 0.01, 0.001]), zeros(3,4); % Damping linear to velocity for base
@@ -49,7 +36,7 @@ K = [zeros(3,7);
      zeros(4,3), diag([0.5,0.5,0.5,0.5])] * q; % Linear in Joint Angle
 
 % Gravity Compensation
-G = [0; 9.81 * m_base; 0; gravityContributionArm(q(4:7),m_link,l,q(3))];
+G = gravityContributionArm(q,m_base,m_link,r,l);
 
 
 end
