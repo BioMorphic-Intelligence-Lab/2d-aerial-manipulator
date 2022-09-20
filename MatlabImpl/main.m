@@ -10,6 +10,8 @@ r = 0.1; %m
 l = 0.1; %m
 % Tendon distance to the backbone
 r_tendon = 0.05; %m
+% Position of the contact wall
+x_wall = 3;
 
 % Desired Position
 q_des = [3; 1; 0;...  % Base
@@ -25,10 +27,7 @@ u = @(x) [max(min(angle_lqr(x, m_base, r,...
             ];
 
 % Dynamic model function
-f = @(t, x) contact_dynamics(x, ...
-                am(x, u(x), m_base, m_link, r, l,r_tendon, q_des),...
-                m_base, m_link, r, l,r_tendon, ...
-                3);
+f = @(t, x) am(x, u(x), m_base, m_link, r, l,r_tendon, q_des, x_wall);
 
 % Initial conditions
 % ... Base Pose  Manipulator Joints
@@ -41,5 +40,5 @@ tspan = 0:0.01:10;
 [t, y] = ode45(f, tspan, y0);
 
 % All plotting
-visualize_traj(t,y,u,r,l)
+visualize_traj(t,y,u,r,l,m_base,m_link,x_wall)
 

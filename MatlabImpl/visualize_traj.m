@@ -1,4 +1,4 @@
-function [] = visualize_traj(t, y, u, r, l)
+function [] = visualize_traj(t, y, u, r, l,m_base,m_link, x_wall)
 %VISUALIZE_TRAJ Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -61,9 +61,22 @@ manip = animatedline;
 manip_joints = animatedline("Marker","o");
 
 base_path = animatedline("Color","b");
-ee_path = animatedline("Color", "r");
+ee_path = animatedline("Color", [0.8500 0.3250 0.0980]);
+
+force_arrow = animatedline("Color",'r','LineStyle','-');
+
 
 grid on;
+xline(x_wall);
+
+% Draw wall region
+patch([x_wall,x_wall,x_wall + 2,x_wall+2],...
+    [min([q_base(:,1) - 1; q_base(:,2) - 1]),...
+    max([q_base(:,1) + 1; q_base(:,2) + 1]),...
+    max([q_base(:,1) + 1; q_base(:,2) + 1]),...
+    min([q_base(:,1) - 1; q_base(:,2) - 1])],...
+    [211,211,211]./255, "FaceAlpha", 0.8);
+
 xlim([min([q_base(:,1) - 1; q_base(:,2) - 1]),...
       max([q_base(:,1) + 1; q_base(:,2) + 1])]);
 ylim([min([q_base(:,1) - 1; q_base(:,2) - 1]),...
@@ -84,6 +97,7 @@ for i = 1:length(y)
     clearpoints(copter)
     clearpoints(manip)
     clearpoints(manip_joints)
+    clearpoints(force_arrow)
 
     % Add New Points
 
@@ -118,6 +132,27 @@ for i = 1:length(y)
     addpoints(base_path,q_base(i,1), q_base(i,2))
     addpoints(ee_path, ...
         cummulative_translation(1), cummulative_translation(2))
+    
+    % Force Vector
+    force = contact_dynamics([q_base(i,:),q_mani(i,:)],...
+                         [q_dot_base(i,:),q_dot_base(i,:)],...
+                         m_base, m_link,r,l,x_wall);
+    force_vector = ee(:,i) + force;
+
+
+    addpoints(force_arrow, [ee(1,i);force_vector(1)],...
+                           [ee(2,i);force_vector(2)]);
+    if norm(force) > 0.0
+        addpoints(force_arrow, ...
+            [force_vector(1)+sign(force_vector(1))*0.025;...
+            force_vector(1)+sign(force_vector(1))*0.025; ...
+            force_vector(1)], ...
+            [force_vector(2)+0.025;...
+            force_vector(2)-0.025; ...
+            force_vector(2)]);
+    end
+
+    % Draw everything
     drawnow
 
     % Grab every 4th frame for the video creation => 25 fps
@@ -136,6 +171,7 @@ xlabel("t[s]")
 ylabel("[m]")
 plot(t, ee(1,:));
 plot(t, ee(2,:));
+yline(x_wall,':');
 legend(["$x_{EE}$","$y_{EE}$"],"Interpreter","latex");
 
 
