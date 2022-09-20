@@ -8,10 +8,10 @@ function am = am(x,u, m_base, m_link, r, l,r_tendon, q_des, x_wall)
 %   q_des desired state
 
 % Extract pose and velocities
-q_base = x(8:10);
-q_mani = x(11:14);
-q_dot_base = x(15:17);
-q_dot_mani = x(18:21);
+q_base = reshape(x(8:10),[3,1]);
+q_mani = reshape(x(11:14),[4,1]);
+q_dot_base = reshape(x(15:17),[3,1]);
+q_dot_mani = reshape(x(18:21),[4,1]);
  
 % Initialize the derivative vector
 x_dot = zeros(21,1);
@@ -26,15 +26,15 @@ x_dot(8:14) = [q_dot_base; q_dot_mani];
                             m_base, m_link, r, l,r_tendon);
 
 % Find the external force
-f_ext = contact_dynamics([q_base;q_mani],[q_dot_base;q_dot_base],m_base,...
+f_ext = contact_dynamics([q_base;q_mani],[q_dot_base;q_dot_mani],m_base,...
                          m_link,r,l,x_wall);
 % Mapping Jacobian from external force to generalized forces
-J_ext = zeros(7,2);
+J_ext = EE_Jacobian([q_base;q_mani],l);
 
 % The velocities derivatives (accelerations) are computed via the equations
 % of motion of the dualrotor
 x_dot(15:21) = M\(A * u - C*[q_dot_base;q_dot_mani] ...
-                  - D*[q_dot_base; q_dot_mani] - K - G + J_ext*f_ext);
+                  - D*[q_dot_base; q_dot_mani] - K - G + J_ext'*f_ext);
 
 % Store the derivative in the return value
 am = x_dot;

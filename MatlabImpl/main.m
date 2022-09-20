@@ -23,7 +23,7 @@ u = @(x) [max(min(angle_lqr(x, m_base, r,...
                 + height_lqri(x, m_base, r, q_des(2)),...
                 [5;5]),...
            0); % Bi-Rotor Inputs
-          [-2.5;0]... Tendon Inputs
+          [-4;0]... Tendon Inputs
             ];
 
 % Dynamic model function
@@ -40,5 +40,5 @@ tspan = 0:0.01:10;
 [t, y] = ode45(f, tspan, y0);
 
 % All plotting
-visualize_traj(t,y,u,r,l,m_base,m_link,x_wall)
+visualize_traj(t,y,u,r,l,m_base,m_link,r_tendon,x_wall)
 
