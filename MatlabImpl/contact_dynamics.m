@@ -1,6 +1,6 @@
 function [f_contact] = contact_dynamics(q,q_dot,...
                                         m_base, m_link, r, l,...
-                                        x_wall)
+                                        wall)
 %CONTACT_DYNAMICS Summary of this function goes here
 q = reshape(q, [7,1]);
 q_dot = reshape(q_dot, [7,1]);
@@ -27,11 +27,14 @@ end
 % EE Velocities
 ee_dot = EE_Jacobian(q,l)*q_dot;
 
+% Extract the planes normal vector
+n = wall(1,:)';
 
 % Next we compute the reaction force (2D-Force vector) at the EE. Only if 
 % we are in contact. It is assumed that no other contact along the AM
 % occures
-f_contact = [(ee(1) >= x_wall) * (k * (x_wall - ee(1)) - d * ee_dot(1)); 0];
+dist = dot(n, ee - wall(2,:)');
+f_contact = (dist <= 0) * (-k * dist - d * dot(n,ee_dot))*n;
 
 end
 

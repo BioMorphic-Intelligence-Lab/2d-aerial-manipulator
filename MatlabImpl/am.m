@@ -1,4 +1,4 @@
-function am = am(x,u, m_base, m_link, r, l,r_tendon, q_des, x_wall)
+function am = am(x,u, m_base, m_link, r, l,r_tendon, q_des, wall)
 %AM Computes the state derivative given the current state andc nput
 %   The state consists of the dualrotor pose and velocities
 %   x is the current state
@@ -27,7 +27,7 @@ x_dot(8:14) = [q_dot_base; q_dot_mani];
 
 % Find the external force
 f_ext = contact_dynamics([q_base;q_mani],[q_dot_base;q_dot_mani],m_base,...
-                         m_link,r,l,x_wall);
+                         m_link,r,l,wall);
 % Mapping Jacobian from external force to generalized forces
 J_ext = EE_Jacobian([q_base;q_mani],l);
 
