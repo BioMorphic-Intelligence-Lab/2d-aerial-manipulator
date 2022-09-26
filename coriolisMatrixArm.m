@@ -1,7 +1,8 @@
 function C = coriolisMatrixArm(q,q_dot,m,l)
-%MASsinERTIAMATRIXARM Summary of this function goes here
-%   Detailed explanation goes here
+%CORIOLISMATRIX ARM Function that returns the state and velocity dependent
+%coriolis matrix of the equations of motion
 
+% Extract variables
 t1 = q(1);
 t2 = q(2);
 t3 = q(3);

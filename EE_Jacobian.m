@@ -1,6 +1,5 @@
 function [Jee] = EE_Jacobian(q,l)
-%EE_JACOBIAN Summary of this function goes here
-%   Detailed explanation goes here
+%EE_JACOBIAN Function that returns the state dependent EE Jacobian
 
 % Extract state
 tB = q(3);

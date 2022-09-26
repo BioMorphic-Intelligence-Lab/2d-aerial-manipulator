@@ -1,14 +1,16 @@
 function [G] = gravityContributionArm(q, m_base, m_link, r, l)
-%GRAVITYCONTRIBUTIONARM Summary of this function goes here
-%   Detailed explanation goes here
+%GRAVITYCONTRIBUTIONARM Function that returns the gravity contribution
+%on the system 
 
-% Gravity Effect on the arm
+% Extract System State
 t_base = q(3);
 t1 = q(4);
 t2 = q(5);
 t3 = q(6);
 t4 = q(7);
 
+
+% Gravity Effect on the arm
 J1t = [ l*cos(t_base+t1)/2, 0,0,0;
        -l*sin(t_base+t1)/2, 0,0,0];
 J2t = [ l*(cos(t_base+t1) + 1/2*cos(t_base+t1+t2)),  l/2*cos(t_base+t1+t2), 0,0;
@@ -32,6 +34,7 @@ G_mani_1 = 9.81 * m_link * J1t'*[0;-1];
 G_mani_2 = 9.81 * m_link * J2t'*[0;-1];
 G_mani_3 = 9.81 * m_link * J3t'*[0;-1];
 G_mani_4 = 9.81 * m_link * J4t'*[0;-1];
+
 % Putting it together
 G_mani = G_mani_1 + G_mani_2 + G_mani_3 + G_mani_4;
 

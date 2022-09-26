@@ -1,7 +1,6 @@
 function [u] = height_lqri(x, m, r, des_height)
-%LIN_LQR Summary of this function goes here
-%   Detailed explanation goes here
-
+%LIN_LQRi Function that computes LQRi optimal feedback control to regulate
+%the altitude of the system
 
 A_lqr = [0, 1, 0;
          0, 0, 1;

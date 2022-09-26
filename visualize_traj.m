@@ -1,6 +1,14 @@
 function [] = visualize_traj(t, y, u, r, l,m_base,m_link,r_tendon, wall)
-%VISUALIZE_TRAJ Summary of this function goes here
-%   Detailed explanation goes here
+%VISUALIZE_TRAJ Function that visualizes the simulation
+
+%% Preparation
+% Consistent LineWidth (lw) and FontSize (fs)
+lw = 2;
+fs = 24;
+
+% Rotation matrices
+rot = @(theta) [cos(theta), -sin(theta);
+                sin(theta), cos(theta)];
 
 % Extract states
 q_base = y(:, 8:10);
@@ -8,24 +16,24 @@ q_mani = y(:, 11:14);
 q_dot_base = y(:, 15:17);
 q_dot_mani = y(:, 18:21);
 
-% Individual Coordinates Plot
+%% Individual Coordinates Plot
 figure;
 subplot(2,1,1)
 hold all;
-plot(t, q_base(:,1:2),"LineWidth",2);
-xlabel("t[s]")
-ylabel("[m]")
+plot(t, q_base(:,1:2),"LineWidth",lw);
+xlabel("t[s]",'FontSize', fs)
+ylabel("[m]",'FontSize', fs)
 grid on;
-legend(["$x$", "$y$"],'Interpreter','latex')
+legend(["$x$", "$y$"],'Interpreter','latex','FontSize', fs)
 
 subplot(2,1,2)
-plot(t, 180 / pi .* q_base(:,3),"LineWidth",2);
-xlabel("t[s]")
-ylabel("[deg]")
+plot(t, 180 / pi .* q_base(:,3),"LineWidth",lw);
+xlabel("t[s]",'FontSize', fs)
+ylabel("[deg]",'FontSize', fs)
 grid on;
-legend("$\theta$",'Interpreter','latex')
+legend("$\theta$",'Interpreter','latex','FontSize', fs)
 
-% Actuation Plots
+%% Actuation Plots
 control = zeros(4,length(y));
 for i = 1:length(control)
     control(:,i) = u(y(i,:)');
@@ -33,24 +41,20 @@ end
 
 figure;
 subplot(2,1,1)
-plot(t, control(1:2,:),"LineWidth",2)
+plot(t, control(1:2,:),"LineWidth",lw)
 grid on;
-legend(["$u_1$", "$u_2$"], "Interpreter","latex")
-xlabel("t[s]")
-ylabel("Rotor Force [N]")
+legend(["$u_1$", "$u_2$"], "Interpreter","latex",'FontSize', fs)
+xlabel("t[s]",'FontSize', fs)
+ylabel("Rotor Force [N]",'FontSize', fs)
 
 subplot(2,1,2)
-plot(t, control(3:4,:), "LineWidth",2)
+plot(t, control(3:4,:), "LineWidth",lw)
 grid on;
-legend(["$f_1$","$f_2$"], "Interpreter","latex")
-xlabel("t[s]")
-ylabel("Tendon Tension [N]")
+legend(["$f_1$","$f_2$"], "Interpreter","latex",'FontSize', fs)
+xlabel("t[s]",'FontSize', fs)
+ylabel("Tendon Tension [N]",'FontSize', fs)
 
-% Rotation matrices
-rot = @(theta) [cos(theta), -sin(theta);
-                sin(theta), cos(theta)];
-
-% In plane animation
+%% In plane animation
 figure;
 bar = r.*[-1, 1;  % x
            0, 0]; % y
@@ -61,15 +65,16 @@ copter = animatedline;
 manip = animatedline;
 manip_joints = animatedline("Marker","o");
 
-base_path = animatedline("Color","b","LineWidth",2,...
+base_path = animatedline("Color","b","LineWidth",lw,...
     "DisplayName","$\mathbf{p}_{Base}$");
-ee_path = animatedline("Color", [0.8500 0.3250 0.0980],"LineWidth",2,...
+ee_path = animatedline("Color", [0.8500 0.3250 0.0980],"LineWidth",lw,...
     "DisplayName","$\mathbf{p}_{EE}$");
 
-force_arrow = animatedline("Color",'r',"LineWidth",2,'LineStyle','-',...
+force_arrow = animatedline("Color",'r',"LineWidth",lw,'LineStyle','-',...
     "DisplayName","$\mathbf{f}_{Contact}$");
 
 grid on;
+
 % Draw wall region
 % Line equation representation of the wall
 if wall(1,2) == 0
@@ -95,12 +100,12 @@ xlim([min([q_base(:,1) - 0.5; q_base(:,2) - 0.5]),...
       max([q_base(:,1) + 0.5; q_base(:,2) + 0.5])]);
 ylim([min([q_base(:,1) - 0.5; q_base(:,2) - 0.5]),...
       max([q_base(:,1) + 0.5; q_base(:,2) + 0.5])])
-xlabel("x[m]")
-ylabel("y[m]")
+xlabel("x[m]",'FontSize', 1.5*fs)
+ylabel("y[m]",'FontSize', 1.5*fs)
 
 % Set Legend of selected lines
 f=get(gca,'Children');
-legend([f(1:4)],"Interpreter","latex");
+legend([f(1:4)],"Interpreter","latex",'FontSize', 1.5*fs);
 
 % Fix Aspect Ratio to Equal
 daspect([1 1 1])
@@ -123,7 +128,6 @@ for i = 1:length(y)
     clearpoints(force_arrow)
 
     % Add New Points
-
     % Base Platfom
     moved_bar = rot(q_base(i, 3)) * bar + q_base(i, 1:2)';
     assert(abs(norm(moved_bar(:,1) - moved_bar(:,2)) - 0.2) < 0.01,...
@@ -196,30 +200,30 @@ end
 
 close(video);
 
-% Plot EE Path
+%% Plot EE Path
 figure;
 hold all;
 grid on;
-xlabel("t[s]")
-ylabel("[m]")
-plot(t, ee(1,:),"LineWidth",2);
-plot(t, ee(2,:),"LineWidth",2);
-yline(wall(2,1),':',"LineWidth",2);
-legend(["$x_{EE}$","$y_{EE}$"],"Interpreter","latex");
+xlabel("t[s]",'FontSize', 1.5*fs)
+ylabel("[m]",'FontSize', 1.5*fs)
+plot(t, ee(1,:),"LineWidth",lw);
+plot(t, ee(2,:),"LineWidth",lw);
+yline(wall(2,1),':',"LineWidth",lw);
+legend(["$x_{EE}$","$y_{EE}$"],"Interpreter","latex",'FontSize', 1.5*fs);
 
-% Plot Joint Variables
+%% Plot Joint Variables
 figure;
 hold all;
 grid on;
-xlabel("t[s]")
-ylabel("[deg]")
-plot(t, 180/pi*q_mani(:,1),"LineWidth",2);
-plot(t, 180/pi*q_mani(:,2),"LineWidth",2);
-plot(t, 180/pi*q_mani(:,3),"LineWidth",2);
-plot(t, 180/pi*q_mani(:,4),"LineWidth",2);
-legend(["$q_1$","$q_2$","$q_3$","$q_4$"],"Interpreter","latex");
+xlabel("t[s]",'FontSize', fs)
+ylabel("[deg]",'FontSize', fs)
+plot(t, 180/pi*q_mani(:,1),"LineWidth",lw);
+plot(t, 180/pi*q_mani(:,2),"LineWidth",lw);
+plot(t, 180/pi*q_mani(:,3),"LineWidth",lw);
+plot(t, 180/pi*q_mani(:,4),"LineWidth",lw);
+legend(["$q_1$","$q_2$","$q_3$","$q_4$"],"Interpreter","latex",'FontSize', fs);
 
-% Compute Estimated Contact Force
+%% Compute Estimated Contact Force
 f_est = zeros(2,length(y)-1);
 f_est_static = zeros(2,length(y)-1);
 for i = 1:length(y)-1
@@ -234,29 +238,29 @@ for i = 1:length(y)-1
                                 m_base,m_link,r,l,r_tendon);
 end
 
-% Plot Contact force and estimated contact force
+%% Plot Contact force and estimated contact force
 figure;
 subplot(2,1,1)
 hold all;
 grid on;
-xlabel("t[s]")
-ylabel("Force [N]")
-plot(t, force(1,:), "LineWidth",2)
-plot(t(1:end-1), f_est(1,:),"LineStyle",":","LineWidth",2)
-plot(t(1:end-1), f_est_static(1,:),"LineStyle",":","LineWidth",2)
-legend(["$f_{sim,x}$","$f_{est,x}$","$f_{static-est,x}$"],...
-    "Interpreter", "latex")
+xlabel("t[s]",'FontSize', fs)
+ylabel("Force [N]",'FontSize', fs)
+plot(t, force(1,:), "LineWidth",lw)
+plot(t(1:end-1), f_est(1,:),"LineStyle",":","LineWidth",lw)
+plot(t(1:end-1), f_est_static(1,:),"LineStyle",":","LineWidth",lw)
+legend(["$f_{sim;x}$","$f_{dyn,est;x}$","$f_{static,est;x}$"],...
+    "Interpreter", "latex",'FontSize', fs)
 
 subplot(2,1,2)
 hold all;
 grid on;
-xlabel("t[s]")
-ylabel("Force [N]")
-plot(t, force(2,:), "LineWidth",2)
-plot(t(1:end-1), f_est(2,:),"LineStyle",":","LineWidth",2)
-plot(t(1:end-1), f_est_static(2,:),"LineStyle",":","LineWidth",2)
-legend(["$f_{sim,y}$","$f_{est,y}$","$f_{static-est,y}$"],...
-    "Interpreter", "latex")
+xlabel("t[s]",'FontSize', fs)
+ylabel("Force [N]",'FontSize', fs)
+plot(t, force(2,:), "LineWidth",lw)
+plot(t(1:end-1), f_est(2,:),"LineStyle",":","LineWidth",lw)
+plot(t(1:end-1), f_est_static(2,:),"LineStyle",":","LineWidth",lw)
+legend(["$f_{sim;y}$","$f_{dyn,est;y}$","$f_{static,est;y}$"],...
+    "Interpreter", "latex",'FontSize', fs)
 
 
 end

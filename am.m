@@ -3,9 +3,13 @@ function am = am(x,u, m_base, m_link, r, l,r_tendon, q_des, wall)
 %   The state consists of the dualrotor pose and velocities
 %   x is the current state
 %   u is the current control input
-%   m system weight
-%   r arm length
+%   m = m_link + m_base is the system weight
+%   r rotor arm length
+%   l is each individual arm link length
+%   r_tendon is the distance of the tendon to the backbone
+%            (needed for torque calculation on the individual joints)
 %   q_des desired state
+%   wall is the description of the contact wall
 
 % Extract pose and velocities
 q_base = reshape(x(8:10),[3,1]);

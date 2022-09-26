@@ -1,6 +1,6 @@
 function [M] = massInertiaMatrix(q, m_base, m_link,r,l)
-%MASSINERTIAMATRIX Summary of this function goes here
-%   Detailed explanation goes here
+%MASSINERTIAMATRIX Function that returns the Mass-Inertia(-Coupling) matrix
+%of the overall system.
 
 % Extract states
 t_base = q(3);
@@ -87,7 +87,6 @@ H = [
     ]; % Coupling effect for rotation
 
 % Putting it all together
-
 M = [M_base, H;
      H', M_arm];
 

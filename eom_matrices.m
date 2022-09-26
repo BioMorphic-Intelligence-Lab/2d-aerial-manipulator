@@ -3,11 +3,17 @@ function [M, C, A, D, K, G] = eom_matrices(q,q_dot,m_base,m_link,r,l,r_tendon)
 %the current state
 % Input:
 %     q current state
-%     m base mass
-%     r arm length
+%     q_dot current velocities
+%     m = m_base + m_link system mass
+%     r rotor arm length
+%     l robot arm link length
+%     r_tendon distance of tendon to backbone
 % Output:
-%     M Mass/Inertia matrix
+%     M Mass/Inertia matrix (Including dynamic coupling)
+%     C Coriolis Matrix
 %     A Input to generalized forces matrix
+%     D System Damping
+%     K System Stiffness
 %     G Gravity contribution
 
 % Mass-Inertia Matrices

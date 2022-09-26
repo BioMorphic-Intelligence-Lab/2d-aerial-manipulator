@@ -1,6 +1,6 @@
 function [H] = couplingMatrix(q,m_base,m_link,r,l)
-%COUPLINGm_linkATRIX Sum_linkm_linkary of this function goes here
-%   Detailed explanation goes here
+%COUPLINGMATRIX Function that returns the state dependent dynamic coupling
+%term between the base and the arm
 
 % Extract Joint variables
 t1 = q(4);

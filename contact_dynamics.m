@@ -1,7 +1,9 @@
 function [f_contact] = contact_dynamics(q,q_dot,...
                                         m_base, m_link, r, l,...
                                         wall)
-%CONTACT_DYNAMICS Summary of this function goes here
+%CONTACT_DYNAMICS function that computes the contact force at the EE
+
+% Extract state and derivative
 q = reshape(q, [7,1]);
 q_dot = reshape(q_dot, [7,1]);
 
