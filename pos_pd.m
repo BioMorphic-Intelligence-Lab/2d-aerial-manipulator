@@ -1,4 +1,4 @@
-function [angle] = pos_pd(x, m, des_pos)
+function [angle] = pos_pd(x, des_pos)
 %POS_LQR Function that returns a desired base attitude given a desired
 %(lateral) position in a PD fashion
 

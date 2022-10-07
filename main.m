@@ -22,27 +22,21 @@ q_des = [3; 1; 0;...  % Base
          0; 0; 0; 0]; % Manipulator Joints
 
 % Control Law
-u = @(x) [max(min(angle_lqr(x, m_base, r,...
-                          pos_pd(x, m_base, q_des(1)))...
-                + height_lqri(x, m_base, r, q_des(2)),...
-                [5;5]),...
-           0); % Bi-Rotor Inputs
-          [0;4]... Tendon Inputs
-            ];
+u = @(x,t) ctrl(x, q_des, m_base,r);
 
 % Dynamic model function
-f = @(t, x) am(x, u(x), m_base, m_link, r, l,r_tendon, q_des, wall);
+f = @(t, x) am(x, u(x,t), m_base, m_link, r, l,r_tendon, q_des, wall);
 
 % Initial conditions
 % ... Base Pose  Manipulator Joints
-y0 = [0, 0, 0,   0, 0, 0, 0  ... Integral 
-      0, 0, 0,   0, 0, 0, 0 ... Position
-      0, 0, 0,   0, 0, 0, 0]; ... Velocity
-tspan = 0:0.01:5;
+y0 = [0, 0, 0, 0, 0, 0, 0  ... Integral 
+      0, 0, 0, 0, 0, 0, 0 ... Position
+      0, 0, 0, 0, 0, 0, 0]; ... Velocity
+tspan = 0:0.01:10;
 
 % Simulate system
 [t, y] = ode45(f, tspan, y0);
 
 % All plotting
-visualize_traj(t,y,u,r,l,m_base,m_link,r_tendon,wall)
+visualize_traj(t,y,q_des,r,l,m_base,m_link,r_tendon,wall)
 

@@ -1,4 +1,4 @@
-function [] = visualize_traj(t, y, u, r, l,m_base,m_link,r_tendon, wall)
+function [] = visualize_traj(t, y, q_des, r, l,m_base,m_link,r_tendon, wall)
 %VISUALIZE_TRAJ Function that visualizes the simulation
 
 %% Preparation
@@ -36,7 +36,7 @@ legend("$\theta$",'Interpreter','latex','FontSize', fs)
 %% Actuation Plots
 control = zeros(4,length(y));
 for i = 1:length(control)
-    control(:,i) = u(y(i,:)');
+    control(:,i) = ctrl(y(i,:)', q_des, m_base,r);
 end
 
 figure;
@@ -53,6 +53,7 @@ grid on;
 legend(["$f_1$","$f_2$"], "Interpreter","latex",'FontSize', fs)
 xlabel("t[s]",'FontSize', fs)
 ylabel("Tendon Tension [N]",'FontSize', fs)
+
 
 %% In plane animation
 figure;
