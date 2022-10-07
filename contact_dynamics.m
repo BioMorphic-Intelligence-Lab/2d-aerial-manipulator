@@ -36,7 +36,8 @@ n = wall(1,:)';
 % we are in contact. It is assumed that no other contact along the AM
 % occures
 dist = dot(n, ee - wall(2,:)');
-f_contact = (dist <= 0) * (-k * dist - d * dot(n,ee_dot))*n;
+f_contact = (dist <= 0) * (-k * dist ...
+                         - (dot(n,ee_dot) <= 0) * d * dot(n,ee_dot))*n;
 
 end
 
