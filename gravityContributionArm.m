@@ -1,4 +1,4 @@
-function [G] = gravityContributionArm(q, m_base, m_link, r, l)
+function [G] = gravityContributionArm(q, m_base, m_link, l)
 %GRAVITYCONTRIBUTIONARM Function that returns the gravity contribution
 %on the system 
 

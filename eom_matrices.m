@@ -39,7 +39,7 @@ K = [zeros(3,7);
      zeros(4,3), diag([0.5,0.5,0.5,0.5])] * q; % Linear in Joint Angle
 
 % Gravity Compensation
-G = gravityContributionArm(q,m_base,m_link,r,l);
+G = gravityContributionArm(q,m_base,m_link,l);
 
 
 end
