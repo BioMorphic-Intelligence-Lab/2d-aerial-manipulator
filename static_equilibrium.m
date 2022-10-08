@@ -83,8 +83,8 @@ for i=1:iter
     q = q - J\F;
 end
 
-p = [0,0];
-
+[x,y] = forward_kinematics([0;0;t0;q],l);
+p =[x;y];
 
 end
 
