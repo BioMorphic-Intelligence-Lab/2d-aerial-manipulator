@@ -18,11 +18,11 @@ wall = [-1, 0; % Normal Vector
 wall(1,:) = wall(1,:)/norm(wall(1,:));
 
 % Desired Position
-q_des = [3; 1; 0;...  % Base
+q_des = [2; 1; 0;...  % Base
          0; 0; 0; 0]; % Manipulator Joints
 
 % Control Law
-u = @(x,t) ctrl(x, q_des, m_base,r);
+u = @(x,t) ctrl(x, q_des, m_base,m_link,l,r); % + (t < 5) * [0;0;0;5] + (t > 5) * [0;0;5;0];
 
 % Dynamic model function
 f = @(t, x) am(x, u(x,t), m_base, m_link, r, l,r_tendon, q_des, wall);

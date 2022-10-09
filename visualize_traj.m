@@ -36,7 +36,7 @@ legend("$\theta$",'Interpreter','latex','FontSize', fs)
 %% Actuation Plots
 control = zeros(4,length(y));
 for i = 1:length(control)
-    control(:,i) = ctrl(y(i,:)', q_des, m_base,r);
+    control(:,i) = ctrl(y(i,:)', q_des, m_base,m_link,l,r);
 end
 
 figure;
