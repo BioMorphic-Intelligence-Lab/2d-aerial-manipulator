@@ -1,9 +1,9 @@
-function [I] = inertia(x, m_base, m_link, r, l)
+function [I] = inertia(q, m_base, m_link, r, l)
 %I Function that computes the state dependent Inertia of the AM
 %   Detailed explanation goes here
 
 % First find the Links CoMs positions relative to the drone CoM
-link_coms = linkCoMs(x, l);
+link_coms = linkCoMs(q, l);
 
 % Assume thin rod around its center, i.e I = 1/12 m L^2
 % And links assumed to be point masses at their CoM

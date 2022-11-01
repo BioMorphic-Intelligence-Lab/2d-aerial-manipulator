@@ -18,7 +18,7 @@ wall = [-1, 0; % Normal Vector
 wall(1,:) = wall(1,:)/norm(wall(1,:));
 
 % Desired Position
-q_des = [2; 1; 0;...  % Base
+q_des = [1; 0; 0;...  % Base
          0; 0; 0; 0]; % Manipulator Joints
 
 % Control Law
