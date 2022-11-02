@@ -12,25 +12,28 @@ l = 0.1; %m
 r_tendon = 0.05; %m
 
 % Description of the contact wall
-wall = [-1, 0; % Normal Vector
-         3, 0]; % Support Point
+walls = [-1, 0; % Normal Vector
+          3, 0; % Support Point
+          0, 1; % Normal Vector
+          0, 0]; % Support Point
 % Make sure normal vector is normalized
-wall(1,:) = wall(1,:)/norm(wall(1,:));
+walls(1:2:length(walls),:) = walls(1:2:length(walls),:)/...
+                             norm(walls(1:2:length(walls),:));
 
 % Desired Position
-q_des = [1; 0; 0;...  % Base
+q_des = [3; 0.3; 0;...  % Base
          0; 0; 0; 0]; % Manipulator Joints
 
 % Control Law
 u = @(x,t) ctrl(x, q_des, m_base,m_link,r,l);
 
 % Dynamic model function
-f = @(t, x) am(x, u(x,t), m_base, m_link, r, l,r_tendon, q_des, wall);
+f = @(t, x) am(x, u(x,t), m_base, m_link, r, l,r_tendon, q_des, walls);
 
 % Initial conditions
 % ... Base Pose  Manipulator Joints
 y0 = [0, 0, 0, 0, 0, 0, 0  ... Integral 
-      0, 0, 0, 0, 0, 0, 0 ... Position
+      0, 1, 0, 0, 0, 0, 0 ... Position
       0, 0, 0, 0, 0, 0, 0]; ... Velocity
 tspan = 0:0.01:10;
 
@@ -38,5 +41,5 @@ tspan = 0:0.01:10;
 [t, y] = ode45(f, tspan, y0);
 
 % All plotting
-visualize_traj(t,y,q_des,r,l,m_base,m_link,r_tendon,wall)
+visualize_traj(t,y,q_des,r,l,m_base,m_link,r_tendon,walls)
 

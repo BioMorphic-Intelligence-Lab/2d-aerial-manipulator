@@ -1,4 +1,4 @@
-function [] = visualize_traj(t, y, q_des, r, l,m_base,m_link,r_tendon, wall)
+function [] = visualize_traj(t, y, q_des, r, l,m_base,m_link,r_tendon, walls)
 %VISUALIZE_TRAJ Function that visualizes the simulation
 
 %% Preparation
@@ -76,25 +76,27 @@ force_arrow = animatedline("Color",'r',"LineWidth",lw,'LineStyle','-',...
 
 grid on;
 
-% Draw wall region
+% Draw walls region
 % Line equation representation of the wall
-if wall(1,2) == 0
-    patch([wall(2,1), wall(2,1),...
-           wall(2,1)-sign(wall(1,1)) * 2, wall(2,1)-sign(wall(1,1)) * 2], ...
+for i=1:2:length(walls)
+ if walls(i,2) == 0
+    patch([walls(i+1,1), walls(i+1,1),...
+           walls(i+1,1)-sign(walls(i,1)) * 2, walls(i+1,1)-sign(walls(i,1)) * 2], ...
           [min([q_base(:,1) - 0.5; q_base(:,2) - 0.5]),...
            max([q_base(:,1) + 0.5; q_base(:,2) + 0.5]),...
            max([q_base(:,1) + 0.5; q_base(:,2) + 0.5]),...
            min([q_base(:,1) - 0.5; q_base(:,2) - 0.5])],...
            [211,211,211]./255, "FaceAlpha", 0.8,...
            "EdgeColor",[211,211,211]./255, "EdgeAlpha", 0.8,...
-           "DisplayName", "Wall")
+           "DisplayName", "Wall " + string(ceil(i/2)))
 else
-    line = @(x) - wall(1,1)/wall(1,2) * (x - wall(2,1)) + wall(2,2);
-    patch([wall(2,1)-1,wall(2,1)+1,wall(2,1) + 2,wall(2,1)+2],...
-        [line(wall(2,1)-1), line(wall(2,1)+1), line(wall(2,1)+1), line(wall(2,1)-1)],...
+    line = @(x) - walls(i,1)/walls(i,2) * (x - walls(i+1,1)) + walls(i+1,2);
+    patch([walls(i+1,1)-2,walls(i+1,1)+4,walls(i+1,1)+4, walls(i+1,1)-2],...
+        [line(walls(i+1,1)-2) - 2, line(walls(i+1,1)+4) - 2, line(walls(i+1,1)+4), line(walls(i+1,1)-4)],...
         [211,211,211]./255, "FaceAlpha", 0.8,...
         "EdgeColor",[211,211,211]./255, "EdgeAlpha", 0.8,...
-        "DisplayName", "Wall");
+        "DisplayName", "Wall " + string(ceil(i/2)));
+end
 end
 
 xlim([min([q_base(:,1) - 0.5; q_base(:,2) - 0.5]),...
@@ -164,7 +166,7 @@ for i = 1:length(y)
     % Force Vector
     force(:,i) = contact_dynamics([q_base(i,:),q_mani(i,:)],...
                          [q_dot_base(i,:),q_dot_mani(i,:)],...
-                         m_base, m_link,r,l,wall);
+                         m_base, m_link,r,l,walls);
     force_vector = ee(:,i) + force(:,i);
 
 
@@ -174,7 +176,9 @@ for i = 1:length(y)
         % Arrow Head Offset
         offset = [0.025, -0.025;
                   -0.025, -0.025];
-        angle = acos(dot(wall(1,:),[0;1]));
+        
+        % Find force angle
+        angle = acos(dot(force(:,i)/norm(force(:,i)),[0;1]));
         offset = rot(angle)*offset;
         
         % Arrow Head
@@ -209,7 +213,7 @@ xlabel("t[s]",'FontSize', 1.5*fs)
 ylabel("[m]",'FontSize', 1.5*fs)
 plot(t, ee(1,:),"LineWidth",lw);
 plot(t, ee(2,:),"LineWidth",lw);
-yline(wall(2,1),':',"LineWidth",lw);
+yline(walls(2:2:end,1),':',"LineWidth",lw);
 legend(["$x_{EE}$","$y_{EE}$"],"Interpreter","latex",'FontSize', 1.5*fs);
 
 %% Plot Joint Variables
