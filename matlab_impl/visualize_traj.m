@@ -36,7 +36,7 @@ legend("$\theta$",'Interpreter','latex','FontSize', fs)
 %% Actuation Plots
 control = zeros(4,length(y));
 for i = 1:length(control)
-    control(:,i) = ctrl(y(i,:)', q_des, m_base,m_link,r,l);
+    control(:,i) = ctrl(y(i,:)', q_des(t(i)), m_base,m_link,r,l);
 end
 
 figure;
@@ -65,6 +65,7 @@ link = l.*[0, 0;   % x
 copter = animatedline;
 manip = animatedline;
 manip_joints = animatedline("Marker","o");
+target = animatedline("Marker", "x", "Color","black","LineWidth",lw);
 
 base_path = animatedline("Color","b","LineWidth",lw,...
     "DisplayName","$\mathbf{p}_{Base}$");
@@ -108,12 +109,13 @@ ylabel("y[m]",'FontSize', 1.5*fs)
 
 % Set Legend of selected lines
 f=get(gca,'Children');
-legend([f(1:4)],"Interpreter","latex",'FontSize', 1.5*fs);
+legend([f(1:5)],"Interpreter","latex",'FontSize', 1.5*fs,"Location","northwest");
 
 % Fix Aspect Ratio to Equal
 daspect([1 1 1])
 
 video = VideoWriter('trajectory'); %open video file
+video.Quality = 100;
 video.FrameRate = 25; 
 open(video);
 
@@ -129,8 +131,14 @@ for i = 1:length(y)
     clearpoints(manip)
     clearpoints(manip_joints)
     clearpoints(force_arrow)
+    clearpoints(target)
 
     % Add New Points
+
+    % Current Targe
+    curr_target = q_des(t(i));
+    addpoints(target,curr_target(1), curr_target(2))
+
     % Base Platfom
     moved_bar = rot(q_base(i, 3)) * bar + q_base(i, 1:2)';
     assert(abs(norm(moved_bar(:,1) - moved_bar(:,2)) - 0.2) < 0.01,...

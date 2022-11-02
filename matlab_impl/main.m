@@ -21,14 +21,16 @@ walls(1:2:length(walls),:) = walls(1:2:length(walls),:)/...
                              norm(walls(1:2:length(walls),:));
 
 % Desired Position
-q_des = [3; 0.3; 0;...  % Base
-         0; 0; 0; 0]; % Manipulator Joints
+q_des = @(t) (t <=3) * [2; 0.2; 0;...    % Base
+                       0; 0; 0; 0] + ... % Manipulator Joints
+             (t > 3) * [3; 2; 0;...  % Base
+                       0; 0; 0; 0];
 
 % Control Law
-u = @(x,t) ctrl(x, q_des, m_base,m_link,r,l);
+u = @(x,t) ctrl(x, q_des(t), m_base,m_link,r,l);
 
 % Dynamic model function
-f = @(t, x) am(x, u(x,t), m_base, m_link, r, l,r_tendon, q_des, walls);
+f = @(t, x) am(x, u(x,t), m_base, m_link, r, l,r_tendon, q_des(t), walls);
 
 % Initial conditions
 % ... Base Pose  Manipulator Joints
