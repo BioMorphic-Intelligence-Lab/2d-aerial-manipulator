@@ -1,4 +1,4 @@
-function [] = visualize_traj(t, y, q_des, r, l,m_base,m_link,r_tendon, walls)
+function [] = visualize_traj(t, y, p_des, r, l,m_base,m_link,r_tendon, walls)
 %VISUALIZE_TRAJ Function that visualizes the simulation
 
 %% Preparation
@@ -36,7 +36,7 @@ legend("$\theta$",'Interpreter','latex','FontSize', fs)
 %% Actuation Plots
 control = zeros(4,length(y));
 for i = 1:length(control)
-    control(:,i) = ctrl(y(i,:)', q_des(t(i)), m_base,m_link,r,l);
+    control(:,i) = ctrl(y(i,:)', p_des(t(i)), m_base,m_link,r,l);
 end
 
 figure;
@@ -136,7 +136,7 @@ for i = 1:length(y)
     % Add New Points
 
     % Current Targe
-    curr_target = q_des(t(i));
+    curr_target = p_des(t(i));
     addpoints(target,curr_target(1), curr_target(2))
 
     % Base Platfom
@@ -217,12 +217,16 @@ close(video);
 figure;
 hold all;
 grid on;
+ref = p_des(t');
 xlabel("t[s]",'FontSize', 1.5*fs)
 ylabel("[m]",'FontSize', 1.5*fs)
-plot(t, ee(1,:),"LineWidth",lw);
-plot(t, ee(2,:),"LineWidth",lw);
+plot(t, ee(1,:),"LineWidth",lw, "Color", "#0072BD");
+plot(t, ee(2,:),"LineWidth",lw, "Color", "#D95319");
+plot(t, ref(1,:), "LineWidth",lw,"Color","#0072BD","LineStyle","--");
+plot(t, ref(2,:), "LineWidth",lw,"Color","#D95319","LineStyle","--");
 yline(walls(2:2:end,1),':',"LineWidth",lw);
-legend(["$x_{EE}$","$y_{EE}$"],"Interpreter","latex",'FontSize', 1.5*fs);
+legend(["$x_{EE}$","$y_{EE}$","$x_{Ref}$","$y_{Ref}$"],...
+    "Interpreter","latex",'FontSize', 1.5*fs, "Location","northwest");
 
 %% Plot Joint Variables
 figure;
