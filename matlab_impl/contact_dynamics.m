@@ -1,6 +1,6 @@
 function [f_contact] = contact_dynamics(q,q_dot,...
                                         m_base, m_link, r, l,...
-                                        wall)
+                                        walls)
 %CONTACT_DYNAMICS function that computes the contact force at the EE
 
 % Extract state and derivative
@@ -30,14 +30,18 @@ end
 ee_dot = EE_Jacobian(q,l)*q_dot;
 
 % Extract the planes normal vector
-n = wall(1,:)';
+n = walls(1:2:length(walls),:)';
 
 % Next we compute the reaction force (2D-Force vector) at the EE. Only if 
 % we are in contact. It is assumed that no other contact along the AM
-% occures
-dist = dot(n, ee - wall(2,:)');
-f_contact = (dist <= 0) * (-k * dist ...
-                         - (dot(n,ee_dot) <= 0) * d * dot(n,ee_dot))*n;
+% occures. Accumulated over all possible walls to be in contact with
+f_contact = [0;0];
+for i = 1:2:length(walls)
+    dist = dot(n(i:i+1), ee - walls(i+1,:)');
+    f_contact = f_contact + (dist <= 0) * (-k * dist ...
+                             - (dot(n(i:i+1),ee_dot) <= 0) * d ...
+                               * dot(n(i:i+1),ee_dot))*n(i:i+1)';
+end
 
 end
 

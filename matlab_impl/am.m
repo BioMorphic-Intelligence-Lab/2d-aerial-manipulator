@@ -1,4 +1,4 @@
-function am = am(x,u, m_base, m_link, r, l,r_tendon, q_des, wall)
+function am = am(x,u, m_base, m_link, r, l,r_tendon, p_des, walls)
 %AM Computes the state derivative given the current state andc nput
 %   The state consists of the dualrotor pose and velocities
 %   x is the current state
@@ -21,7 +21,8 @@ q_dot_mani = reshape(x(18:21),[4,1]);
 x_dot = zeros(21,1);
 
 % The rate of change of the integral is just the value (difference)
-x_dot(1:7) = [q_base; q_mani] - q_des;
+x_dot(1:2) = q_base(1:2) - p_des;
+x_dot(3) = q_base(3);
 % It's a first order system so the pose derivative is just the velocities
 x_dot(8:14) = [q_dot_base; q_dot_mani];
 
@@ -31,7 +32,7 @@ x_dot(8:14) = [q_dot_base; q_dot_mani];
 
 % Find the external force
 f_ext = contact_dynamics([q_base;q_mani],[q_dot_base;q_dot_mani],m_base,...
-                         m_link,r,l,wall);
+                         m_link,r,l,walls);
 % Mapping Jacobian from external force to generalized forces
 J_ext = EE_Jacobian([q_base;q_mani],l);
 

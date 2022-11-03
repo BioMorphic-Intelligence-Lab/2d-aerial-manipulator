@@ -1,4 +1,4 @@
-function [] = visualize_traj(t, y, q_des, r, l,m_base,m_link,r_tendon, wall)
+function [] = visualize_traj(t, y, p_des, r, l,m_base,m_link,r_tendon, walls)
 %VISUALIZE_TRAJ Function that visualizes the simulation
 
 %% Preparation
@@ -36,7 +36,7 @@ legend("$\theta$",'Interpreter','latex','FontSize', fs)
 %% Actuation Plots
 control = zeros(4,length(y));
 for i = 1:length(control)
-    control(:,i) = ctrl(y(i,:)', q_des, m_base,r);
+    control(:,i) = ctrl(y(i,:)', p_des(t(i)), m_base,m_link,r,l);
 end
 
 figure;
@@ -65,6 +65,7 @@ link = l.*[0, 0;   % x
 copter = animatedline;
 manip = animatedline;
 manip_joints = animatedline("Marker","o");
+target = animatedline("Marker", "x", "Color","black","LineWidth",lw);
 
 base_path = animatedline("Color","b","LineWidth",lw,...
     "DisplayName","$\mathbf{p}_{Base}$");
@@ -76,25 +77,27 @@ force_arrow = animatedline("Color",'r',"LineWidth",lw,'LineStyle','-',...
 
 grid on;
 
-% Draw wall region
+% Draw walls region
 % Line equation representation of the wall
-if wall(1,2) == 0
-    patch([wall(2,1), wall(2,1),...
-           wall(2,1)-sign(wall(1,1)) * 2, wall(2,1)-sign(wall(1,1)) * 2], ...
+for i=1:2:length(walls)
+ if walls(i,2) == 0
+    patch([walls(i+1,1), walls(i+1,1),...
+           walls(i+1,1)-sign(walls(i,1)) * 2, walls(i+1,1)-sign(walls(i,1)) * 2], ...
           [min([q_base(:,1) - 0.5; q_base(:,2) - 0.5]),...
            max([q_base(:,1) + 0.5; q_base(:,2) + 0.5]),...
            max([q_base(:,1) + 0.5; q_base(:,2) + 0.5]),...
            min([q_base(:,1) - 0.5; q_base(:,2) - 0.5])],...
            [211,211,211]./255, "FaceAlpha", 0.8,...
            "EdgeColor",[211,211,211]./255, "EdgeAlpha", 0.8,...
-           "DisplayName", "Wall")
+           "DisplayName", "Wall " + string(ceil(i/2)))
 else
-    line = @(x) - wall(1,1)/wall(1,2) * (x - wall(2,1)) + wall(2,2);
-    patch([wall(2,1)-1,wall(2,1)+1,wall(2,1) + 2,wall(2,1)+2],...
-        [line(wall(2,1)-1), line(wall(2,1)+1), line(wall(2,1)+1), line(wall(2,1)-1)],...
+    line = @(x) - walls(i,1)/walls(i,2) * (x - walls(i+1,1)) + walls(i+1,2);
+    patch([walls(i+1,1)-2,walls(i+1,1)+4,walls(i+1,1)+4, walls(i+1,1)-2],...
+        [line(walls(i+1,1)-2) - 2, line(walls(i+1,1)+4) - 2, line(walls(i+1,1)+4), line(walls(i+1,1)-4)],...
         [211,211,211]./255, "FaceAlpha", 0.8,...
         "EdgeColor",[211,211,211]./255, "EdgeAlpha", 0.8,...
-        "DisplayName", "Wall");
+        "DisplayName", "Wall " + string(ceil(i/2)));
+end
 end
 
 xlim([min([q_base(:,1) - 0.5; q_base(:,2) - 0.5]),...
@@ -106,12 +109,13 @@ ylabel("y[m]",'FontSize', 1.5*fs)
 
 % Set Legend of selected lines
 f=get(gca,'Children');
-legend([f(1:4)],"Interpreter","latex",'FontSize', 1.5*fs);
+legend([f(1:5)],"Interpreter","latex",'FontSize', 1.5*fs,"Location","northwest");
 
 % Fix Aspect Ratio to Equal
 daspect([1 1 1])
 
 video = VideoWriter('trajectory'); %open video file
+video.Quality = 100;
 video.FrameRate = 25; 
 open(video);
 
@@ -127,8 +131,14 @@ for i = 1:length(y)
     clearpoints(manip)
     clearpoints(manip_joints)
     clearpoints(force_arrow)
+    clearpoints(target)
 
     % Add New Points
+
+    % Current Targe
+    curr_target = p_des(t(i));
+    addpoints(target,curr_target(1), curr_target(2))
+
     % Base Platfom
     moved_bar = rot(q_base(i, 3)) * bar + q_base(i, 1:2)';
     assert(abs(norm(moved_bar(:,1) - moved_bar(:,2)) - 0.2) < 0.01,...
@@ -164,7 +174,7 @@ for i = 1:length(y)
     % Force Vector
     force(:,i) = contact_dynamics([q_base(i,:),q_mani(i,:)],...
                          [q_dot_base(i,:),q_dot_mani(i,:)],...
-                         m_base, m_link,r,l,wall);
+                         m_base, m_link,r,l,walls);
     force_vector = ee(:,i) + force(:,i);
 
 
@@ -174,7 +184,9 @@ for i = 1:length(y)
         % Arrow Head Offset
         offset = [0.025, -0.025;
                   -0.025, -0.025];
-        angle = acos(dot(wall(1,:),[0;1]));
+        
+        % Find force angle
+        angle = acos(dot(force(:,i)/norm(force(:,i)),[0;1]));
         offset = rot(angle)*offset;
         
         % Arrow Head
@@ -205,12 +217,16 @@ close(video);
 figure;
 hold all;
 grid on;
+ref = p_des(t');
 xlabel("t[s]",'FontSize', 1.5*fs)
 ylabel("[m]",'FontSize', 1.5*fs)
-plot(t, ee(1,:),"LineWidth",lw);
-plot(t, ee(2,:),"LineWidth",lw);
-yline(wall(2,1),':',"LineWidth",lw);
-legend(["$x_{EE}$","$y_{EE}$"],"Interpreter","latex",'FontSize', 1.5*fs);
+plot(t, ee(1,:),"LineWidth",lw, "Color", "#0072BD");
+plot(t, ee(2,:),"LineWidth",lw, "Color", "#D95319");
+plot(t, ref(1,:), "LineWidth",lw,"Color","#0072BD","LineStyle","--");
+plot(t, ref(2,:), "LineWidth",lw,"Color","#D95319","LineStyle","--");
+yline(walls(2:2:end,1),':',"LineWidth",lw);
+legend(["$x_{EE}$","$y_{EE}$","$x_{Ref}$","$y_{Ref}$"],...
+    "Interpreter","latex",'FontSize', 1.5*fs, "Location","northwest");
 
 %% Plot Joint Variables
 figure;

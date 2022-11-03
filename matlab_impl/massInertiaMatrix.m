@@ -9,22 +9,8 @@ t2 = q(5);
 t3 = q(6);
 t4 = q(7);
 
-% First find the Links CoMs positions relative to the drone CoM
-link_coms = [l/2, 0, 0, 0;
-             l, l/2, 0 ,0;
-             l, l, l/2, 0;
-             l, l, l, l/2] ...
-        * [sin(t_base + t1), cos(t_base + t1);
-          sin(t_base + t1 + t2), cos(t_base + t1 + t2);
-          sin(t_base + t1 + t2 + t3), cos(t_base + t1 + t2 + t3);
-          sin(t_base + t1 + t2 + t3 + t4), cos(t_base + t1 + t2 + t3 + t4)];
-
-% Assume thin rod around its center, i.e I = 1/12 m L^2
-I = 0.83333 * m_base * (2 * r) ^ 2 ...
-    + m_link * (norm(link_coms(1,:))^2 ...
-              + norm(link_coms(2,:))^2 ...
-              + norm(link_coms(3,:))^2 ...
-              + norm(link_coms(4,:))^2);
+% Find state dependent inertia
+I = inertia(q, m_base, m_link, r, l);
 
 % Mass-Inertia Matrix Base
 M_base = [m_base, 0, 0;
