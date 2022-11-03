@@ -20,17 +20,20 @@ walls = [-1, 0; % Normal Vector
 walls(1:2:length(walls),:) = walls(1:2:length(walls),:)/...
                              norm(walls(1:2:length(walls),:));
 
-% Desired Position
-q_des = @(t) (t <=3) * [2; 0.2; 0;...    % Base
-                       0; 0; 0; 0] + ... % Manipulator Joints
-             (t > 3) * [3; 2; 0;...  % Base
-                       0; 0; 0; 0];
+% Desired Position and Force
+p_des = @(t) (t <=10) .* [3; 2] + ...
+             (t > 5 & t <=10) .* [2; -0.025] + ...
+             (t > 10) .* [3.025; 1];
+f_des  = [-1; 0];
+
+% Instantiate ctrl instance
+c = f_ctrl();
 
 % Control Law
-u = @(x,t) ctrl(x, q_des(t), m_base,m_link,r,l);
+u = @(x,t) c.ctrl(t,x,p_des(t),f_des,m_base,m_link,r,l,r_tendon); %ctrl(x, p_des(t), m_base,m_link,r,l);
 
 % Dynamic model function
-f = @(t, x) am(x, u(x,t), m_base, m_link, r, l,r_tendon, q_des(t), walls);
+f = @(t, x) am(x, u(x,t), m_base, m_link, r, l,r_tendon, p_des(t), walls);
 
 % Initial conditions
 % ... Base Pose  Manipulator Joints
@@ -43,5 +46,5 @@ tspan = 0:0.01:10;
 [t, y] = ode45(f, tspan, y0);
 
 % All plotting
-visualize_traj(t,y,q_des,r,l,m_base,m_link,r_tendon,walls)
+visualize_traj(t,y,p_des,r,l,m_base,m_link,r_tendon,walls)
 
