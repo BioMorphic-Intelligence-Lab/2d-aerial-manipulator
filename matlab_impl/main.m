@@ -27,11 +27,11 @@ p_des = @(t) (t <=5) .* [3; 2] + ...
 f_des  = [-1; 0];
 
 % Instantiate ctrl instance
-c = f_ctrl();
+c = ctrl();
 
 % Control Law
-m = m_base + 4*m_link;
-u = @(x,t) ctrl(x, p_des(t), m_base,m_link,r,l);
+u = @(x,t) c.pos_ctrl(x, p_des(t), m_base,m_link,r,l); %c.f_ctrl(t,x,p_des(t),f_des,m_base,m_link,r,l,r_tendon);
+
 
 % Dynamic model function
 f = @(t, x) am(x, u(x,t), m_base, m_link, r, l,r_tendon, p_des(t), walls);
@@ -41,11 +41,11 @@ f = @(t, x) am(x, u(x,t), m_base, m_link, r, l,r_tendon, p_des(t), walls);
 y0 = [0, 0, 0, 0, 0, 0, 0  ... Integral 
       0, 1, 0, 0, 0, 0, 0 ... Position
       0, 0, 0, 0, 0, 0, 0]; ... Velocity
-tspan = 0:0.01:10;
+tspan = 0:0.01:5;
 
 % Simulate system
 [t, y] = ode45(f, tspan, y0);
 
 % All plotting
-visualize_traj(t,y,p_des,r,l,m_base,m_link,r_tendon,walls)
+visualize_traj(t,y,u,p_des,r,l,m_base,m_link,r_tendon,walls)
 

@@ -1,4 +1,4 @@
-function [] = visualize_traj(t, y, p_des, r, l,m_base,m_link,r_tendon, walls)
+function [] = visualize_traj(t, y, u, p_des, r, l,m_base,m_link,r_tendon, walls)
 %VISUALIZE_TRAJ Function that visualizes the simulation
 
 %% Preparation
@@ -36,7 +36,7 @@ legend("$\theta$",'Interpreter','latex','FontSize', fs)
 %% Actuation Plots
 control = zeros(4,length(y));
 for i = 1:length(control)
-    control(:,i) = ctrl(y(i,:)', p_des(t(i)), m_base,m_link,r,l);
+    control(:,i) = u(y(i,:)',t(i));
 end
 
 figure;
