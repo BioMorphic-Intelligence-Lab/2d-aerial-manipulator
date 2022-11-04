@@ -4,6 +4,7 @@ classdef f_ctrl < handle
         u_last 
         q_dot_last
         t_last
+        e_f_last
     end
     
     methods
@@ -13,6 +14,7 @@ classdef f_ctrl < handle
             obj.u_last = zeros(4,1);
             obj.q_dot_last = zeros(7,1);
             obj.t_last = 0;
+            obj.e_f_last = zeros(2,1);
         end
         
         function u = ctrl(obj,t, x,dir,f_des,m_base,m_link,r,l,r_tendon)
@@ -50,9 +52,18 @@ classdef f_ctrl < handle
 
             % We only do force regulation if we are in contact
             if ee(1) >= 3
-                % Find the relative position change proportional to force error
-                delta_p = 0.1 * (f_contact - f_des)
-                u = ctrl(x,[q(1);2] + delta_p,m_base,m_link,r,l);
+                % Find the force error
+                e_f = f_contact - f_des;
+                % Rate of change of force error
+                e_f_dot = (e_f - obj.e_f_last)/(t-obj.t_last);
+                % Find the relative position change PD to force error
+                delta_p = 0.2 * e_f + 0.1 * e_f_dot;
+                % Control Action
+                u = ctrl(x,dir,m_base,m_link,r,l);
+                % Remember e_f for next time
+                obj.e_f_last = e_f;
+                
+                
             % Otherwise we simply do the position control
             else
                 u = ctrl(x,dir,m_base,m_link,r,l);
