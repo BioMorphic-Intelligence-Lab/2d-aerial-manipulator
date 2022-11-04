@@ -23,12 +23,7 @@ M = massInertiaMatrix(q,m_base,m_link,r,l);
 C = coriolisMatrix(q,q_dot,m_link,l);
 
 % Input Map Matrix
-sT = sin(q(3));
-cT = cos(q(3));
-A = [-sT,-sT, zeros(1,2);
-     cT,cT, zeros(1,2);
-     r, - r, zeros(1,2);
-    zeros(4,2), -r_tendon*ones(4,1),r_tendon*ones(4,1)];
+A = inputMapMatrix(q,r,l,r_tendon);
 
 % Damping
 D = [diag([0.01, 0.01, 0.001]), zeros(3,4); % Damping linear to velocity for base
@@ -39,7 +34,7 @@ K = [zeros(3,7);
      zeros(4,3), diag([0.5,0.5,0.5,0.5])] * q; % Linear in Joint Angle
 
 % Gravity Compensation
-G = gravityContributionArm(q,m_base,m_link,r,l);
+G = gravityContributionArm(m_base,m_link);
 
 
 end

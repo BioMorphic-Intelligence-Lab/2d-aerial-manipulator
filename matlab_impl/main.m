@@ -13,15 +13,15 @@ r_tendon = 0.05; %m
 
 % Description of the contact wall
 walls = [-1, 0; % Normal Vector
-          3, 0; % Support Point
-          0, 1; % Normal Vector
-          0, 0]; % Support Point
+          3, 0;]; % Support Point
+          %0, 1; % Normal Vector
+          %0, 0]; % Support Point
 % Make sure normal vector is normalized
 walls(1:2:length(walls),:) = walls(1:2:length(walls),:)/...
                              norm(walls(1:2:length(walls),:));
 
 % Desired Position and Force
-p_des = @(t) (t <=10) .* [3; 2] + ...
+p_des = @(t) (t <=5) .* [3; 2] + ...
              (t > 10) .* [2; -0.025] + ...
              (t > 15) .* [3.025; 1];
 f_des  = [-1; 0];
@@ -30,7 +30,8 @@ f_des  = [-1; 0];
 c = f_ctrl();
 
 % Control Law
-u = @(x,t) c.ctrl(t,x,p_des(t),f_des,m_base,m_link,r,l,r_tendon); %ctrl(x, p_des(t), m_base,m_link,r,l);
+m = m_base + 4*m_link;
+u = @(x,t) ctrl(x, p_des(t), m_base,m_link,r,l);
 
 % Dynamic model function
 f = @(t, x) am(x, u(x,t), m_base, m_link, r, l,r_tendon, p_des(t), walls);
