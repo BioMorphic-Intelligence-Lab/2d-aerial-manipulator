@@ -39,7 +39,9 @@ J_ext = EE_Jacobian([q_base;q_mani],l);
 % The velocities derivatives (accelerations) are computed via the equations
 % of motion of the dualrotor
 x_dot(15:21) = M\(A * u - C*[q_dot_base;q_dot_mani] ...
-                  - D*[q_dot_base; q_dot_mani] - K - G + J_ext'*f_ext);
+                  - D*[q_dot_base; q_dot_mani] - K - G ...
+                  + virtual_force([q_base;q_mani],u,m_base,m_link,r,l)...
+                  + J_ext'*f_ext);
 
 % Store the derivative in the return value
 am = x_dot;

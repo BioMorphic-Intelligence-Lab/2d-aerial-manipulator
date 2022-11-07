@@ -40,7 +40,7 @@ f = @(t, x) am(x, u(x,t), m_base, m_link, r, l,r_tendon, p_des(t), walls);
 y0 = [0, 0, 0, 0, 0, 0, 0  ... Integral 
       0, 1, 0, 0, 0, 0, 0 ... Position
       0, 0, 0, 0, 0, 0, 0]; ... Velocity
-tspan = 0:0.01:5;
+tspan = 0:0.01:10;
 
 % Simulate system
 [t, y] = ode45(f, tspan, y0);
