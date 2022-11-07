@@ -19,7 +19,6 @@ t2d = q_dot(5);
 t3d = q_dot(6);
 t4d = q_dot(7);
 
-
 %% Coriolis Effect on X
 % Coriolis Effect on x due to x_dot, y_dot, th_dot
 C11 = 0;
@@ -39,7 +38,7 @@ C15 = -(1/2)*l*m*((5*sin(t1+t2)+3*sin(t1+t2+t3)+sin(t1+t2+t3+t4))*t1d...
 C16 = 1/2*l*m*(-3*sin(t1+t2+t3)*(t1d+t2d+t3d)...
     -sin(t1+t2+t3+t4)*(t1d+t2d+t3d+t4d));
 %Coriolis Effect on x due to th4_dot
-C16 = -(1/2)*l*m*sin(t1+t2+t3+t4)*(t1d+t2d+t3d+t4d);
+C17 = -(1/2)*l*m*sin(t1+t2+t3+t4)*(t1d+t2d+t3d+t4d);
 
 %% Coriolis Effect on y
 % Coriolis Effect on y due to x_dot
@@ -343,7 +342,7 @@ C77 = 1/8*l*m*(l*(2*cos(tb-t4)+2*cos(tb-t3-t4)+cos(tb-t2-t3-t4)...
     +cos(t1+t2+t3+t4)*yd));
 
 %% Collecting it in one matrix
-C = [C11,C12,C13,C14,C15,C16,C16;
+C = [C11,C12,C13,C14,C15,C16,C17;
      C21,C22,C23,C24,C25,C26,C27;
      C31,C32,C33,C34,C35,C36,C37;
      C41,C42,C43,C44,C45,C46,C47;
