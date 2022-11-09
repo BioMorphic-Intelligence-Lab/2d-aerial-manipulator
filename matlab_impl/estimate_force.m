@@ -16,7 +16,8 @@ J_ee = EE_Jacobian(q,l);
 [M, C, A, D, K, G] = eom_matrices(q,q_dot,m_base,m_link,r,l,r_tendon); 
 
 % Compute Force
-f = pinv(J_ee')*(M*q_ddot + (C + D)*q_dot + G + K - A*u);
+f = pinv(J_ee')*(M*q_ddot + (C + D)*q_dot + G + K - ...
+    virtual_force(q,u,m_base,m_link,r,l)- A*u);
 
 end
 

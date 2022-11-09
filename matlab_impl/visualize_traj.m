@@ -1,4 +1,4 @@
-function [] = visualize_traj(t, y, u, p_des, r, l,m_base,m_link,r_tendon, walls)
+function [] = visualize_traj(t, y, u, c, dir, f_des, r, l,m_base,m_link,r_tendon, walls)
 %VISUALIZE_TRAJ Function that visualizes the simulation
 
 %% Preparation
@@ -35,8 +35,9 @@ legend("$\theta$",'Interpreter','latex','FontSize', fs)
 
 %% Actuation Plots
 control = zeros(4,length(y));
+ref = zeros(2,1);
 for i = 1:length(control)
-    control(:,i) = u(y(i,:)',t(i));
+    [control(:,i), ref(:,i)] = c.f_ctrl(t(i),y(i,:)',dir, f_des,m_base,m_link,r,l,r_tendon);
 end
 
 figure;
@@ -56,6 +57,8 @@ ylabel("Tendon Tension [N]",'FontSize', fs)
 
 
 %% In plane animation
+c = ctrl();
+
 figure;
 bar = r.*[-1, 1;  % x
            0, 0]; % y
@@ -101,7 +104,7 @@ end
 end
 
 xlim([min([q_base(:,1) - 0.5; q_base(:,2) - 0.5]),...
-      max([q_base(:,1) + 0.5; q_base(:,2) + 0.5])]);
+      max([q_base(:,1) + 2; q_base(:,2) + 2])]);
 ylim([min([q_base(:,1) - 0.5; q_base(:,2) - 0.5]),...
       max([q_base(:,1) + 0.5; q_base(:,2) + 0.5])])
 xlabel("x[m]",'FontSize', 1.5*fs)
@@ -120,7 +123,7 @@ video.FrameRate = 25;
 open(video);
 
 % EE - path
-ee = zeros(2,length(y));
+ee = zeros(2,length(t));
 
 % Force Vector
 force = zeros(2,length(y));
@@ -134,10 +137,7 @@ for i = 1:length(y)
     clearpoints(target)
 
     % Add New Points
-
-    % Current Targe
-    curr_target = p_des(t(i));
-    addpoints(target,curr_target(1), curr_target(2))
+    addpoints(target,ref(1,i), ref(2,i))
 
     % Base Platfom
     moved_bar = rot(q_base(i, 3)) * bar + q_base(i, 1:2)';
@@ -217,7 +217,6 @@ close(video);
 figure;
 hold all;
 grid on;
-ref = p_des(t');
 xlabel("t[s]",'FontSize', 1.5*fs)
 ylabel("[m]",'FontSize', 1.5*fs)
 plot(t, ee(1,:),"LineWidth",lw, "Color", "#0072BD");
@@ -263,9 +262,10 @@ grid on;
 xlabel("t[s]",'FontSize', fs)
 ylabel("Force [N]",'FontSize', fs)
 plot(t, force(1,:), "LineWidth",lw)
-plot(t(1:end-1), f_est(1,:),"LineStyle",":","LineWidth",lw)
-plot(t(1:end-1), f_est_static(1,:),"LineStyle",":","LineWidth",lw)
-legend(["$f_{sim;x}$","$f_{dyn,est;x}$","$f_{static,est;x}$"],...
+plot(t(2:end), f_est(1,:),"LineStyle",":","LineWidth",lw)
+%plot(t(2:end), f_est_static(1,:),"LineStyle",":","LineWidth",lw)
+plot(t, f_des(1)*ones(1,length(t)),"LineStyle",":","Color","black","LineWidth",lw)
+legend(["$f_{sim;x}$","$f_{dyn,est;x}$","$f_{static,est;x}$","$f_{des,x}$"],...
     "Interpreter", "latex",'FontSize', fs)
 
 subplot(2,1,2)
@@ -276,7 +276,8 @@ ylabel("Force [N]",'FontSize', fs)
 plot(t, force(2,:), "LineWidth",lw)
 plot(t(1:end-1), f_est(2,:),"LineStyle",":","LineWidth",lw)
 plot(t(1:end-1), f_est_static(2,:),"LineStyle",":","LineWidth",lw)
-legend(["$f_{sim;y}$","$f_{dyn,est;y}$","$f_{static,est;y}$"],...
+plot(t, f_des(2)*ones(1,length(t)),"LineStyle",":","Color","black","LineWidth",lw)
+legend(["$f_{sim;y}$","$f_{dyn,est;y}$","$f_{static,est;y}$","$f_{des,y}$"],...
     "Interpreter", "latex",'FontSize', fs)
 
 
