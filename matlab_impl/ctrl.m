@@ -6,6 +6,7 @@ classdef ctrl < handle
         t_last
         f_last
         e_f_last
+        e_f_int
         established_contact;
     end
     
@@ -18,10 +19,11 @@ classdef ctrl < handle
             obj.t_last = 0;
             obj.f_last = zeros(2,1);
             obj.e_f_last = zeros(2,1);
+            obj.e_f_int = zeros(2,1);
             obj.established_contact = false;
         end
         
-        function u = pos_ctrl(obj,x,p_des,m_base,m_link, r,l)
+        function u = pos_ctrl(obj,x,p_des,m_base,m_link, r,l, u_max)
         %POS_CTRL Chains the various controllers to compute the position
         %control action.
         % x = Current System State (integral, value, derivative)
@@ -29,20 +31,20 @@ classdef ctrl < handle
         % m_base = Mass of the base
         % m_link = Mass of one individual link
         % r = Rotor arm length
-        % l = Individual Link Length        
+        % l = Individual Link Length  
+        % u_max = maximal thrust
             % Desired base position
             p_base = ee2base(p_des,x(11:14),l);
-            
+
             % Control Action
             u = [max(min(angle_lqri(x, m_base, m_link, r, l,...
                                       pos_pd(x, p_base(1)) ...
                                          )...
                             + height_lqr(x, m_base + 4*m_link, p_base(2)),...
-                            [5;5]),...
+                            [u_max;u_max]),...
                            0);    % Bi-Rotor Inputs
                            [0;5]... Tendon Inputs
                         ];
-        
         
         end
 
@@ -84,10 +86,12 @@ classdef ctrl < handle
             if (ee(1) >= 3) || (obj.established_contact)
                 % Find the force error
                 e_f = f_des - f_contact;
+                % Numerically integrate the force error
+                obj.e_f_int = obj.e_f_int + e_f*(t-obj.t_last);
                 % Rate of change of force error
                 e_f_dot = (e_f - obj.e_f_last)/(t-obj.t_last);
-                % Find the relative position change PD to force error
-                delta_p = 1 * e_f + 0.001 * e_f_dot;
+                % Find the relative position change PID to force error
+                delta_p = 0.1 * e_f + 0.5*obj.e_f_int + 0.001 * e_f_dot;
                 % Reference position
                 p = [dir(1) - delta_p(1);1];
 
@@ -105,7 +109,7 @@ classdef ctrl < handle
 
         end
 
-        function [u,p] = f_ctrl(obj,t, x,dir,f_des,m_base,m_link,r,l,r_tendon)
+        function [u,p] = f_ctrl(obj,t, x,dir,f_des,m_base,m_link,r,l,r_tendon, u_max)
         %F_CTRL Function that follows a direction until it establishes contact and
         %then tries to regulate the contact force
         % x = Current System State (integral, value, derivative)
@@ -123,7 +127,7 @@ classdef ctrl < handle
                 q_dot = x(15:21);
 
                 p = obj.f_p_ref(t,x,dir,f_des,m_base,m_link,r,l,r_tendon);
-                u = obj.pos_ctrl(x,p,m_base,m_link,r,l);   
+                u = obj.pos_ctrl(x,p,m_base,m_link,r,l, u_max);   
 
                 % Remember values for next iteration
                 obj.t_last = t;

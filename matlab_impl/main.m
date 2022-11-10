@@ -10,6 +10,8 @@ r = 0.1; %m
 l = 0.1; %m
 % Tendon distance to the backbone
 r_tendon = 0.05; %m
+% Maximal thrust of one thruster
+u_max = 10; %N
 
 % Description of the contact wall
 walls = [-1, 0; % Normal Vector
@@ -22,13 +24,13 @@ walls(1:2:length(walls),:) = walls(1:2:length(walls),:)/...
 
 % Desired Position and Force
 dir = [3.25; 1];
-f_des  = [-0.25; 0];
+f_des  = [-0.2; 0];
 
 % Instantiate ctrl instance
 c = ctrl();
 
 % Control Law
-u = @(x,t) c.f_ctrl(t,x,dir, f_des,m_base,m_link,r,l,r_tendon);
+u = @(x,t) c.f_ctrl(t,x,dir, f_des,m_base,m_link,r,l,r_tendon,u_max);
 %u = @(x,t) c.pos_ctrl(x,dir,m_base,m_link,r,l);
 % Dynamic model function
 f = @(t, x) am(x, u(x,t), m_base, m_link, r, l,r_tendon, dir, walls);
@@ -38,7 +40,7 @@ f = @(t, x) am(x, u(x,t), m_base, m_link, r, l,r_tendon, dir, walls);
 y0 = [0, 0, 0, 0, 0, 0, 0  ... Integral 
       2, 1, 0, 0, 0, 0, 0 ... Position
       0, 0, 0, 0, 0, 0, 0]; ... Velocity
-tspan = 0:0.01:7;
+tspan = 0:0.01:15;
 
 % Simulate system
 [t, y] = ode45(f, tspan, y0);
@@ -48,5 +50,5 @@ c = ctrl();
 u = @(x,t) c.f_ctrl(t,x,dir, f_des,m_base,m_link,r,l,r_tendon);
 %u = @(x,t) c.pos_ctrl(x,dir,m_base,m_link,r,l);
 % All plotting
-visualize_traj(t,y,u,c,dir,f_des,r,l,m_base,m_link,r_tendon,walls)
+visualize_traj(t,y,u,c,dir,f_des,r,l,m_base,m_link,r_tendon,walls, u_max)
 
