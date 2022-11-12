@@ -1,6 +1,17 @@
 %% Entry Point to the Simulation
 % Gets the system parameters and starts the simulation
 
+% Init struct for logging
+global logger
+logger.t = [];%;zeros(1,1);
+logger.u = [];%zeros(4,1);
+logger.q = [];%zeros(7,1);
+logger.qdot = [];%zeros(7,1);
+logger.ref = [];%zeros(2,1);
+logger.fext = [];%zeros(2,1);
+logger.fext_est = [];%zeros(2,1);
+
+
 % Dualrotor Mass
 m_base = 0.5; % kg
 m_link = 0.01; %kg
@@ -11,7 +22,7 @@ l = 0.1; %m
 % Tendon distance to the backbone
 r_tendon = 0.05; %m
 % Maximal thrust of one thruster
-u_max = 10; %N
+u_max = 5; %N
 
 % Description of the contact wall
 walls = [-1, 0; % Normal Vector
@@ -33,22 +44,19 @@ c = ctrl();
 u = @(x,t) c.f_ctrl(t,x,dir, f_des,m_base,m_link,r,l,r_tendon,u_max);
 %u = @(x,t) c.pos_ctrl(x,dir,m_base,m_link,r,l);
 % Dynamic model function
-f = @(t, x) am(x, u(x,t), m_base, m_link, r, l,r_tendon, dir, walls);
+f = @(t, x) am(t,x, u(x,t), m_base, m_link, r, l,r_tendon, dir, walls);
 
 % Initial conditions
 % ... Base Pose  Manipulator Joints
 y0 = [0, 0, 0, 0, 0, 0, 0  ... Integral 
       2, 1, 0, 0, 0, 0, 0 ... Position
       0, 0, 0, 0, 0, 0, 0]; ... Velocity
-tspan = 0:0.01:15;
+tspan = 0:0.01:10;
 
 % Simulate system
 [t, y] = ode45(f, tspan, y0);
 
-% Reset controller for plotting
-c = ctrl();
-u = @(x,t) c.f_ctrl(t,x,dir, f_des,m_base,m_link,r,l,r_tendon);
 %u = @(x,t) c.pos_ctrl(x,dir,m_base,m_link,r,l);
 % All plotting
-visualize_traj(t,y,u,c,dir,f_des,r,l,m_base,m_link,r_tendon,walls, u_max)
+visualize_traj(logger,f_des,r,l,walls,u_max)
 

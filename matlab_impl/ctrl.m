@@ -48,7 +48,7 @@ classdef ctrl < handle
         
         end
 
-        function p = f_p_ref(obj,t,x,dir,f_des,m_base,m_link,r,l,r_tendon)
+        function [p, f_contact] = f_p_ref(obj,t,x,dir,f_des,m_base,m_link,r,l,r_tendon)
         % F_P_REF Function that computes the reference position given the
         % current state and therefore the infered force tracking error.
         % t = current time stamp
@@ -69,7 +69,7 @@ classdef ctrl < handle
             end
             % Estimate contact force
             f_contact = estimate_force(q,q_dot,q_ddot,obj.u_last,m_base,...
-                                       m_link,r,l,r_tendon);
+                                       m_link,r,l,r_tendon);        
             
             % Find EE-Pos
             ee = q(1:2);
@@ -126,7 +126,7 @@ classdef ctrl < handle
                  % Extract state variables 
                 q_dot = x(15:21);
 
-                p = obj.f_p_ref(t,x,dir,f_des,m_base,m_link,r,l,r_tendon);
+                [p, f_contact] = obj.f_p_ref(t,x,dir,f_des,m_base,m_link,r,l,r_tendon);
                 u = obj.pos_ctrl(x,p,m_base,m_link,r,l, u_max);   
 
                 % Remember values for next iteration
@@ -136,7 +136,12 @@ classdef ctrl < handle
             else
                 u = obj.u_last;
                 p = dir;
+                f_contact = obj.f_last;
             end
+
+            global logger
+            logger.ref = [logger.ref,p];
+            logger.fext_est = [logger.fext_est,f_contact];
         end
     end
 end
